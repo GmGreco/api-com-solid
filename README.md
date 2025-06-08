@@ -1,212 +1,293 @@
-# 🎯 API com SOLID + Design Patterns
+# 🛒 E-commerce API - Clean Architecture + Design Patterns
 
-Uma API RESTful implementada com **Clean Architecture**, **princípios SOLID** e **3 padrões de design essenciais** que agregam valor real ao projeto.
+Uma API completa de E-commerce desenvolvida com **TypeScript**, **Express.js** e **Prisma ORM**, implementando **Clean Architecture**, princípios **SOLID** e **três padrões GoF**.
 
-## 🏆 **Destaques do Projeto**
+## 🏗️ Arquitetura
 
-- ✅ **Clean Architecture** com separação clara de responsabilidades
-- ✅ **Princípios SOLID** aplicados em toda a base de código
-- ✅ **3 Design Patterns essenciais** implementados com foco em valor
-- ✅ **TypeScript** para type safety
-- ✅ **Prisma ORM** para gerenciamento de banco de dados
-- ✅ **Express.js** para API RESTful
-
-## 🎨 **Padrões de Design Implementados**
-
-### 1. 🎨 **DECORATOR Pattern** - Cache Transparente
-
-- **Performance**: 80% redução nas consultas ao banco
-- **Transparente**: Zero impacto no código existente
-- **Configurável**: TTL de 5 minutos com invalidação inteligente
-
-### 2. 🛡️ **PROXY Pattern** - Segurança Automática
-
-- **Controle de Acesso**: Role-based permissions (admin/user)
-- **Auditoria**: Logs automáticos de segurança
-- **Transparente**: Use Cases não precisam se preocupar com autenticação
-
-### 3. 🔌 **ADAPTER Pattern** - Flexibilidade de Integração
-
-- **Email**: Fácil troca entre provedores (Nodemailer ↔ SendGrid)
-- **Testável**: Mocks simples para testes
-- **Extensível**: Pronto para outros adapters (pagamento, storage, etc.)
-
-## 🚀 **Tecnologias Utilizadas**
-
-- **Node.js** + **TypeScript**
-- **Express.js** - Framework web
-- **Prisma** - ORM e migrations
-- **SQLite** - Banco de dados (desenvolvimento)
-- **CORS** - Cross-origin resource sharing
-
-## 📁 **Estrutura do Projeto**
+O projeto segue os princípios da **Clean Architecture** com as seguintes camadas:
 
 ```
 src/
-├── domain/                          # Regras de negócio
-│   ├── entities/User.ts            # Entidades do domínio
-│   ├── repositories/UserRepository.ts
-│   ├── useCases/                   # Casos de uso
-│   └── services/EmailService.ts   # 🔌 ADAPTER interface
-├── application/                    # Coordenação
-│   └── controllers/UserController.ts
-├── infrastructure/                 # Detalhes de implementação
-│   ├── adapters/                   # 🔌 ADAPTER
-│   │   └── NodemailerEmailAdapter.ts
-│   ├── decorators/                 # 🎨 DECORATOR
-│   │   └── CachedUserRepository.ts
-│   ├── proxies/                    # 🛡️ PROXY
-│   │   └── AuthorizedUserRepository.ts
-│   ├── database/prisma.ts
-│   └── repositories/PrismaUserRepository.ts
-└── presentation/                   # Interface externa
-    └── routes/
-        ├── userRoutes.ts           # Rotas originais
-        └── optimizedUserRoutes.ts # Rotas com padrões
+├── domain/                 # Camada de Domínio (Business Rules)
+│   ├── entities/          # Entidades de negócio
+│   ├── repositories/      # Interfaces dos repositórios
+│   ├── services/          # Serviços de domínio
+│   └── factories/         # Factories para criação de objetos
+├── application/           # Camada de Aplicação (Use Cases)
+│   └── use-cases/        # Casos de uso da aplicação
+├── infrastructure/        # Camada de Infraestrutura
+│   └── database/         # Implementações dos repositórios
+└── presentation/          # Camada de Apresentação
+    └── controllers/      # Controllers da API REST
 ```
 
-## 🛠️ **Instalação e Execução**
+## 🎯 Padrões GoF Implementados
 
-### **Pré-requisitos**
+### 1. **Strategy Pattern** 📋
 
-- Node.js 18+
+**Localização**: `src/domain/services/payment/PaymentStrategy.ts`
+
+**Problema Resolvido**: Diferentes métodos de pagamento (PIX, Cartão de Crédito, Boleto) com lógicas específicas.
+
+**Implementação**:
+
+- **Interface Strategy**: `PaymentStrategy`
+- **Concrete Strategies**:
+  - `CreditCardPaymentStrategy`
+  - `PixPaymentStrategy`
+  - `BoletoPaymentStrategy`
+- **Context**: `PaymentProcessor`
+- **Factory**: `PaymentStrategyFactory`
+
+**Benefícios**:
+
+- Extensibilidade: fácil adição de novos métodos de pagamento
+- Manutenibilidade: cada estratégia é independente
+- Testabilidade: cada estratégia pode ser testada isoladamente
+
+### 2. **Observer Pattern** 👁️
+
+**Localização**: `src/domain/services/notification/OrderStatusObserver.ts`
+
+**Problema Resolvido**: Necessidade de notificar múltiplos sistemas quando o status de um pedido muda.
+
+**Implementação**:
+
+- **Subject Interface**: `OrderStatusSubject`
+- **Observer Interface**: `OrderStatusObserver`
+- **Concrete Observers**:
+  - `EmailNotificationObserver` - Notificações por email
+  - `SmsNotificationObserver` - Notificações por SMS
+  - `AuditLogObserver` - Log de auditoria
+  - `InventoryObserver` - Atualização de estoque
+- **Concrete Subject**: `OrderStatusManager`
+
+**Benefícios**:
+
+- Desacoplamento: observers são independentes do subject
+- Flexibilidade: fácil adição/remoção de observers
+- Responsabilidade única: cada observer tem uma responsabilidade específica
+
+### 3. **Factory Pattern** 🏭
+
+**Localização**: `src/domain/factories/ProductFactory.ts`
+
+**Problema Resolvido**: Criação de diferentes tipos de produtos (Físicos, Digitais, Serviços) com configurações específicas.
+
+**Implementação**:
+
+- **Abstract Factory**: `ProductFactory`
+- **Concrete Factories**:
+  - `PhysicalProductFactory` - Produtos físicos com estoque/peso
+  - `DigitalProductFactory` - Produtos digitais com downloads
+  - `ServiceProductFactory` - Serviços com agendamento
+- **Factory Creator**: `ProductFactoryCreator`
+- **Builder Pattern**: `ProductConfigBuilder` (bonus pattern)
+
+**Benefícios**:
+
+- Extensibilidade: fácil criação de novos tipos de produto
+- Consistência: garantia de que produtos são criados corretamente
+- Flexibilidade: diferentes configurações para cada tipo
+
+## 🔧 Princípios SOLID Aplicados
+
+### **S** - Single Responsibility Principle
+
+- Cada classe tem uma única responsabilidade
+- Use Cases focados em uma única operação
+- Observers com responsabilidades específicas
+
+### **O** - Open/Closed Principle
+
+- Fácil extensão via Strategy Pattern (novos métodos de pagamento)
+- Novos observers podem ser adicionados sem modificar código existente
+- Factories permitem novos tipos de produto
+
+### **L** - Liskov Substitution Principle
+
+- Todas as estratégias de pagamento são intercambiáveis
+- Observers podem ser substituídos sem afetar o funcionamento
+- Factories seguem a mesma interface
+
+### **I** - Interface Segregation Principle
+
+- Interfaces específicas para cada repositório
+- Observers têm interfaces minimalistas
+- DTOs específicos para cada operação
+
+### **D** - Dependency Inversion Principle
+
+- Controllers dependem de abstrações (Use Cases)
+- Use Cases dependem de interfaces (Repositories)
+- Injeção de dependência em todos os níveis
+
+## 🗄️ Modelo de Dados
+
+### Entidades Principais:
+
+- **User**: Usuários do sistema (admin/customer)
+- **Product**: Produtos disponíveis
+- **Category**: Categorias de produtos
+- **Order**: Pedidos realizados
+- **OrderItem**: Itens de um pedido
+- **Payment**: Pagamentos dos pedidos
+- **Review**: Avaliações de produtos
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+
+- Node.js 16+
 - npm ou yarn
 
-### **1. Clone o repositório**
+### Instalação
 
-```bash
-git clone https://github.com/GmGreco/api-com-solid.git
-cd api-com-solid
-```
-
-### **2. Instale as dependências**
+1. **Instalar dependências**:
 
 ```bash
 npm install
 ```
 
-### **3. Configure o banco de dados**
+2. **Configurar banco de dados**:
 
 ```bash
-# Gerar cliente Prisma
-npm run prisma:generate
+# Gerar o cliente Prisma
+npm run db:generate
 
-# Executar migrations
-npm run prisma:migrate
+# Criar e aplicar migrações
+npm run db:migrate
+
+# (Opcional) Popular banco com dados de exemplo
+npm run db:seed
 ```
 
-### **4. Execute a aplicação**
+3. **Executar em desenvolvimento**:
 
 ```bash
-# Desenvolvimento
 npm run dev
+```
 
-# Produção
+4. **Build para produção**:
+
+```bash
 npm run build
 npm start
 ```
 
-A API estará disponível em `http://localhost:3333`
+### Endpoints Principais
 
-## 🧪 **Testando a API**
+#### Pedidos
 
-### **Rotas Disponíveis**
+- `POST /api/orders` - Criar pedido
+- `GET /api/orders/:id` - Buscar pedido
+- `GET /api/users/:userId/orders` - Pedidos do usuário
+- `PUT /api/orders/:id/status` - Atualizar status
 
-```bash
-# Usar rotas otimizadas (recomendado)
-GET    /api/users          # Listar usuários
-GET    /api/users/:id      # Buscar usuário por ID
-POST   /api/users          # Criar usuário
+#### Produtos
 
-# Usar rotas originais
-GET    /users              # Rotas sem padrões
-```
+- `GET /api/products` - Listar produtos
+- `GET /api/products/:id` - Buscar produto
+- `POST /api/products` - Criar produto
+- `PUT /api/products/:id` - Atualizar produto
 
-### **Exemplos de Uso**
+#### Usuários
 
-#### **Como Usuário Comum**
+- `POST /api/auth/register` - Registrar usuário
+- `POST /api/auth/login` - Login
+- `GET /api/users/profile` - Perfil do usuário
 
-```bash
-# Listar usuários (só vê próprios dados)
-curl -H "user-role: user" -H "user-id: user-123" \
-     http://localhost:3333/api/users
+## 📝 Exemplo de Uso
 
-# Buscar usuário específico
-curl -H "user-role: user" -H "user-id: user-123" \
-     http://localhost:3333/api/users/user-123
-```
-
-#### **Como Administrador**
+### Criar um Pedido
 
 ```bash
-# Listar todos os usuários
-curl -H "user-role: admin" -H "user-id: admin-456" \
-     http://localhost:3333/api/users
-
-# Criar novo usuário
-curl -X POST -H "user-role: admin" -H "user-id: admin-456" \
-     -H "Content-Type: application/json" \
-     -d '{"name":"João","email":"joao@test.com","password":"123456"}' \
-     http://localhost:3333/api/users
+curl -X POST http://localhost:3000/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user-123",
+    "items": [
+      {
+        "productId": "product-456",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "PIX",
+    "paymentData": {
+      "pixKey": "user@email.com",
+      "userDocument": "12345678901"
+    }
+  }'
 ```
 
-## 📊 **Logs e Monitoramento**
+### Resposta
 
-A API produz logs detalhados que ajudam no debugging:
-
-```bash
-🔐 Auth: admin accessing /api/users
-👑 Admin admin-456 accessing all users
-✅ Cache hit for all users
-📊 Retrieved 5 users for admin-456 (admin)
-
-🔐 Auth: user accessing /api/users/123
-🚫 Access denied: User user-123 tried to access user 456
+```json
+{
+  "success": true,
+  "data": {
+    "order": {
+      "id": "order_123",
+      "userId": "user-123",
+      "status": "PENDING",
+      "total": 199.98,
+      "paymentMethod": "PIX",
+      "items": [...]
+    },
+    "payment": {
+      "transactionId": "pix_789",
+      "processingTime": 500
+    }
+  }
+}
 ```
 
-## 🎯 **Benefícios dos Padrões Implementados**
+## 🔍 Benefícios da Arquitetura
 
-### **🚀 Performance**
+### **Testabilidade**
 
-- **80% menos consultas** ao banco com cache
-- **Resposta mais rápida** para usuários frequentes
-- **TTL configurável** (5 minutos por padrão)
+- Cada camada pode ser testada independentemente
+- Mocks fáceis através das interfaces
+- Use Cases isolados facilitam testes unitários
 
-### **🔒 Segurança**
+### **Manutenibilidade**
 
-- **Controle de acesso** automático e transparente
-- **Logs de auditoria** para compliance
-- **Role-based access control** (RBAC)
+- Código organizado em responsabilidades claras
+- Fácil localização de funcionalidades
+- Baixo acoplamento entre componentes
 
-### **🔧 Manutenibilidade**
+### **Extensibilidade**
 
-- **Código limpo** e bem organizado
-- **Fácil extensão** com novos adapters
-- **Testes simples** com mocks
+- Novos métodos de pagamento via Strategy
+- Novos tipos de notificação via Observer
+- Novos tipos de produto via Factory
+- Novos Use Cases sem afetar infraestrutura
 
-## 📚 **Documentação Adicional**
+### **Escalabilidade**
 
-- [📖 DESIGN_PATTERNS_ANALYSIS.md](./DESIGN_PATTERNS_ANALYSIS.md) - Análise completa dos padrões
-- [🎯 ESSENTIAL_PATTERNS.md](./ESSENTIAL_PATTERNS.md) - Guia prático dos 3 padrões essenciais
+- Repositórios podem ser implementados para diferentes bancos
+- Controllers podem ser adaptados para GraphQL/gRPC
+- Lógica de negócio independente da tecnologia
 
-## 🤝 **Contribuindo**
+## 🛡️ Qualidade de Código
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+- **TypeScript**: Tipagem forte para reduzir erros
+- **ESLint**: Análise estática de código
+- **Prettier**: Formatação consistente
+- **Clean Code**: Nomes descritivos e funções pequenas
+- **SOLID**: Princípios seguidos rigorosamente
 
-## 📝 **Licença**
+## 🎓 Aprendizados
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
+Este projeto demonstra:
 
-## 👨‍💻 **Autor**
-
-**GmGreco**
-
-- GitHub: [@GmGreco](https://github.com/GmGreco)
+1. Como aplicar **Design Patterns** de forma prática e justificada
+2. Implementação de **Clean Architecture** em Node.js
+3. Uso correto dos princípios **SOLID**
+4. Organização de código para projetos **enterprise**
+5. **Separação de responsabilidades** entre camadas
+6. **Injeção de dependência** para testabilidade
 
 ---
 
-⭐ **Gostou do projeto? Deixe uma estrela!** ⭐
+**Desenvolvido com ❤️ aplicando as melhores práticas de engenharia de software**

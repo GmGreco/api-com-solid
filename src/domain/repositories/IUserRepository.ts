@@ -1,10 +1,19 @@
-import User from "../entities/User";
+import { User } from "../entities/User";
 
+// Interface do Repository seguindo Dependency Inversion Principle
 export interface IUserRepository {
+  create(user: User): Promise<User>;
   findById(id: string): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
-  save(user: User): Promise<User>;
   update(user: User): Promise<User>;
   delete(id: string): Promise<void>;
-  findAll(): Promise<User[]>;
+  findAll(limit?: number, offset?: number): Promise<User[]>;
+}
+
+// Interface para filtros de busca
+export interface UserFilters {
+  role?: string;
+  email?: string;
+  createdAfter?: Date;
+  createdBefore?: Date;
 }
