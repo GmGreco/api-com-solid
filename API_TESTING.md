@@ -4,10 +4,6 @@
 
 A API está funcionando em: **http://localhost:3000**
 
-## ⚠️ **IMPORTANTE**: Todas as rotas são públicas (autenticação removida)
-
-Todas as rotas da API agora são **públicas** e **não requerem autenticação**. Você pode acessar qualquer endpoint sem tokens JWT.
-
 ## 📋 Endpoints Implementados
 
 ### 🔍 Health Check & Documentation
@@ -19,8 +15,6 @@ curl http://localhost:3000/health
 # Documentação completa
 curl http://localhost:3000/
 ```
-
-### 🔓 Autenticação (Opcional)
 
 ```bash
 # Registrar usuário
@@ -42,7 +36,7 @@ curl -X POST http://localhost:3000/api/auth/login \
   }'
 ```
 
-### 🔓 Usuários (Público)
+### 🔓 Usuários
 
 ```bash
 # Ver perfil (sem token necessário)
@@ -55,17 +49,17 @@ curl -X PUT http://localhost:3000/api/users/profile \
     "name": "João Silva Atualizado"
   }'
 
-# Listar todos usuários (público)
+# Listar todos usuários
 curl -X GET http://localhost:3000/api/users
 ```
 
-### 🔓 Categorias (Público)
+### 🔓 Categorias
 
 ```bash
 # Listar categorias
 curl http://localhost:3000/api/categories
 
-# Criar categoria (público)
+# Criar categoria
 curl -X POST http://localhost:3000/api/categories \
   -H "Content-Type: application/json" \
   -d '{
@@ -77,7 +71,7 @@ curl -X POST http://localhost:3000/api/categories \
 curl http://localhost:3000/api/categories/category-electronics/products
 ```
 
-### 🔓 Produtos (Público)
+### 🔓 Produtos
 
 ```bash
 # Listar produtos
@@ -89,7 +83,7 @@ curl http://localhost:3000/api/products/PRODUCT_ID
 # Buscar produtos
 curl "http://localhost:3000/api/products/search?q=notebook&limit=5"
 
-# Criar produto (público)
+# Criar produto
 curl -X POST http://localhost:3000/api/products \
   -H "Content-Type: application/json" \
   -d '{
@@ -108,7 +102,7 @@ curl -X POST http://localhost:3000/api/products \
   }'
 ```
 
-### 🔓 Pedidos (Público)
+### 🔓 Pedidos
 
 ```bash
 # Criar pedido (sem token necessário)
@@ -129,13 +123,13 @@ curl -X POST http://localhost:3000/api/orders \
     }
   }'
 
-# Ver pedido por ID (público)
+# Ver pedido por ID
 curl http://localhost:3000/api/orders/ORDER_ID
 
-# Pedidos do usuário (público)
+# Pedidos do usuário
 curl http://localhost:3000/api/users/USER_ID/orders
 
-# Atualizar status do pedido (público)
+# Atualizar status do pedido
 curl -X PUT http://localhost:3000/api/orders/ORDER_ID/status \
   -H "Content-Type: application/json" \
   -d '{
@@ -228,10 +222,3 @@ Endpoints retornam sempre no formato:
   "message": string
 }
 ```
-
-## ✅ Vantagens da Remoção da Autenticação
-
-- **Testes mais simples**: Não precisa gerar tokens
-- **Desenvolvimento rápido**: Acesso direto a todos os endpoints
-- **Demonstração fácil**: Ideal para showcases e protótipos
-- **API aberta**: Perfeita para testes automatizados
