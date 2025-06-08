@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-
-// Entidade Category simples
 export interface Category {
   id: string;
   name: string;
@@ -8,9 +6,7 @@ export interface Category {
   createdAt: Date;
   updatedAt: Date;
 }
-
 export class CategoryController {
-  // Mock data para demonstração
   private mockCategories: Category[] = [
     {
       id: "category-electronics",
@@ -42,7 +38,6 @@ export class CategoryController {
       updatedAt: new Date("2024-01-01"),
     },
   ];
-
   async getAllCategories(req: Request, res: Response): Promise<void> {
     try {
       res.status(200).json({
@@ -60,11 +55,9 @@ export class CategoryController {
       });
     }
   }
-
   async createCategory(req: Request, res: Response): Promise<void> {
     try {
       const { name, description } = req.body;
-
       if (!name || !description) {
         res.status(400).json({
           success: false,
@@ -72,12 +65,9 @@ export class CategoryController {
         });
         return;
       }
-
-      // Verificar se categoria já existe
       const existingCategory = this.mockCategories.find(
         (cat) => cat.name.toLowerCase() === name.toLowerCase()
       );
-
       if (existingCategory) {
         res.status(400).json({
           success: false,
@@ -85,8 +75,6 @@ export class CategoryController {
         });
         return;
       }
-
-      // Criar nova categoria
       const newCategory: Category = {
         id: `category-${Date.now()}`,
         name,
@@ -94,9 +82,7 @@ export class CategoryController {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-
       this.mockCategories.push(newCategory);
-
       res.status(201).json({
         success: true,
         data: {
@@ -112,12 +98,10 @@ export class CategoryController {
       });
     }
   }
-
   async getCategoryProducts(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const { limit = 20, offset = 0 } = req.query;
-
       if (!id) {
         res.status(400).json({
           success: false,
@@ -125,8 +109,6 @@ export class CategoryController {
         });
         return;
       }
-
-      // Verificar se categoria existe
       const category = this.mockCategories.find((cat) => cat.id === id);
       if (!category) {
         res.status(404).json({
@@ -135,13 +117,11 @@ export class CategoryController {
         });
         return;
       }
-
-      // Por enquanto, retorna resposta mock
       res.status(200).json({
         success: true,
         data: {
           category: category,
-          products: [], // Aqui seria integrado com ProductRepository
+          products: [], 
           total: 0,
           pagination: {
             limit: parseInt(limit as string),

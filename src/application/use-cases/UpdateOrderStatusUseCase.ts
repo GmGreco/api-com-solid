@@ -1,28 +1,22 @@
 import { Order, OrderStatus } from "../../domain/entities/Order";
 import { IOrderRepository } from "../../domain/repositories/IOrderRepository";
-
 export interface UpdateOrderStatusRequest {
   orderId: string;
   status: OrderStatus;
-  userId?: string; // Para verificação de permissão
+  userId?: string; 
 }
-
 export interface UpdateOrderStatusResponse {
   success: boolean;
   order?: Order;
   error?: string;
 }
-
 export class UpdateOrderStatusUseCase {
   constructor(private orderRepository: IOrderRepository) {}
-
   async execute(
     request: UpdateOrderStatusRequest
   ): Promise<UpdateOrderStatusResponse> {
     try {
       const { orderId, status, userId } = request;
-
-      // Buscar pedido
       const order = await this.orderRepository.findById(orderId);
       if (!order) {
         return {
@@ -30,19 +24,13 @@ export class UpdateOrderStatusUseCase {
           error: "Order not found",
         };
       }
-
-      // Verificar permissão (se não for admin, só pode atualizar próprios pedidos)
       if (userId && order.userId !== userId) {
         return {
           success: false,
           error: "Access denied",
         };
       }
-
-      // Guardar status anterior para log
       const previousStatus = order.status;
-
-      // Validar se a transição de status é válida e aplicar
       try {
         switch (status) {
           case OrderStatus.CONFIRMED:
@@ -72,15 +60,10 @@ export class UpdateOrderStatusUseCase {
           error: error.message,
         };
       }
-
-      // Salvar pedido atualizado
       const updatedOrder = await this.orderRepository.update(order);
-
-      // Log da alteração
       console.log(
         `Order ${orderId} status changed from ${previousStatus} to ${status}`
       );
-
       return {
         success: true,
         order: updatedOrder,

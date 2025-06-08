@@ -1,5 +1,4 @@
 import { Product, ProductStatus } from "../entities/Product";
-
 export interface IProductRepository {
   create(product: Product): Promise<Product>;
   findById(id: string): Promise<Product | null>;
@@ -18,7 +17,6 @@ export interface IProductRepository {
   reserveStock(productId: string, quantity: number): Promise<boolean>;
   releaseStock(productId: string, quantity: number): Promise<void>;
 }
-
 export interface ProductFilters {
   categoryId?: string;
   status?: ProductStatus;

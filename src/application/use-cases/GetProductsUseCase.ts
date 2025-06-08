@@ -3,7 +3,6 @@ import {
   IProductRepository,
   ProductFilters,
 } from "../../domain/repositories/IProductRepository";
-
 export interface GetProductsRequest {
   limit?: number;
   offset?: number;
@@ -15,20 +14,16 @@ export interface GetProductsRequest {
   sortBy?: "price" | "name" | "createdAt" | "stock";
   sortOrder?: "asc" | "desc";
 }
-
 export interface GetProductsResponse {
   success: boolean;
   products?: Product[];
   total?: number;
   error?: string;
 }
-
 export class GetProductsUseCase {
   constructor(private productRepository: IProductRepository) {}
-
   async execute(request: GetProductsRequest): Promise<GetProductsResponse> {
     try {
-      // 1. Preparar filtros
       const filters: ProductFilters = {
         limit: request.limit || 50,
         offset: request.offset || 0,
@@ -40,10 +35,7 @@ export class GetProductsUseCase {
         sortBy: request.sortBy,
         sortOrder: request.sortOrder,
       };
-
-      // 2. Buscar produtos
       const products = await this.productRepository.findAll(filters);
-
       return {
         success: true,
         products,

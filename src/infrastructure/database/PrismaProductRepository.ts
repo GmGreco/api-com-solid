@@ -4,10 +4,8 @@ import {
   IProductRepository,
   ProductFilters,
 } from "../../domain/repositories/IProductRepository";
-
 export class PrismaProductRepository implements IProductRepository {
   constructor(private prisma: PrismaClient) {}
-
   async create(product: Product): Promise<Product> {
     const productData = {
       id: product.id,
@@ -21,22 +19,17 @@ export class PrismaProductRepository implements IProductRepository {
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
     };
-
     const created = await this.prisma.product.create({
       data: productData,
     });
-
     return this.toDomainEntity(created);
   }
-
   async findById(id: string): Promise<Product | null> {
     const product = await this.prisma.product.findUnique({
       where: { id },
     });
-
     return product ? this.toDomainEntity(product) : null;
   }
-
   async findByIds(ids: string[]): Promise<Product[]> {
     const products = await this.prisma.product.findMany({
       where: {
@@ -45,10 +38,8 @@ export class PrismaProductRepository implements IProductRepository {
         },
       },
     });
-
     return products.map((product) => this.toDomainEntity(product));
   }
-
   async update(product: Product): Promise<Product> {
     const productData = {
       name: product.name,
@@ -59,32 +50,25 @@ export class PrismaProductRepository implements IProductRepository {
       status: product.status,
       updatedAt: product.updatedAt,
     };
-
     const updated = await this.prisma.product.update({
       where: { id: product.id },
       data: productData,
     });
-
     return this.toDomainEntity(updated);
   }
-
   async delete(id: string): Promise<void> {
     await this.prisma.product.delete({
       where: { id },
     });
   }
-
   async findAll(filters?: ProductFilters): Promise<Product[]> {
     const where: any = {};
-
     if (filters?.categoryId) {
       where.categoryId = filters.categoryId;
     }
-
     if (filters?.status) {
       where.status = filters.status;
     }
-
     if (filters?.minPrice || filters?.maxPrice) {
       where.price = {};
       if (filters.minPrice) {
@@ -94,30 +78,25 @@ export class PrismaProductRepository implements IProductRepository {
         where.price.lte = filters.maxPrice;
       }
     }
-
     if (filters?.inStock) {
       where.stock = {
         gt: 0,
       };
     }
-
     const orderBy: any = {};
     if (filters?.sortBy) {
       orderBy[filters.sortBy] = filters.sortOrder || "desc";
     } else {
       orderBy.createdAt = "desc";
     }
-
     const products = await this.prisma.product.findMany({
       where,
       orderBy,
       take: filters?.limit || 50,
       skip: filters?.offset || 0,
     });
-
     return products.map((product) => this.toDomainEntity(product));
   }
-
   async findByCategory(
     categoryId: string,
     limit = 50,
@@ -129,10 +108,8 @@ export class PrismaProductRepository implements IProductRepository {
       skip: offset,
       orderBy: { createdAt: "desc" },
     });
-
     return products.map((product) => this.toDomainEntity(product));
   }
-
   async search(query: string, limit = 50, offset = 0): Promise<Product[]> {
     const products = await this.prisma.product.findMany({
       where: {
@@ -153,10 +130,8 @@ export class PrismaProductRepository implements IProductRepository {
       skip: offset,
       orderBy: { createdAt: "desc" },
     });
-
     return products.map((product) => this.toDomainEntity(product));
   }
-
   async findLowStock(threshold: number): Promise<Product[]> {
     const products = await this.prisma.product.findMany({
       where: {
@@ -167,10 +142,8 @@ export class PrismaProductRepository implements IProductRepository {
       },
       orderBy: { stock: "asc" },
     });
-
     return products.map((product) => this.toDomainEntity(product));
   }
-
   async updateStock(productId: string, quantity: number): Promise<void> {
     await this.prisma.product.update({
       where: { id: productId },
@@ -182,17 +155,14 @@ export class PrismaProductRepository implements IProductRepository {
       },
     });
   }
-
   async reserveStock(productId: string, quantity: number): Promise<boolean> {
     try {
       const product = await this.prisma.product.findUnique({
         where: { id: productId },
       });
-
       if (!product || product.stock < quantity) {
         return false;
       }
-
       await this.prisma.product.update({
         where: { id: productId },
         data: {
@@ -202,13 +172,11 @@ export class PrismaProductRepository implements IProductRepository {
           updatedAt: new Date(),
         },
       });
-
       return true;
     } catch (error) {
       return false;
     }
   }
-
   async releaseStock(productId: string, quantity: number): Promise<void> {
     await this.prisma.product.update({
       where: { id: productId },
@@ -220,7 +188,6 @@ export class PrismaProductRepository implements IProductRepository {
       },
     });
   }
-
   private toDomainEntity(product: any): Product {
     return new Product(
       product.id,

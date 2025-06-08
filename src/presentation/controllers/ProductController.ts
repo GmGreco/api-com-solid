@@ -12,14 +12,12 @@ import {
   GetProductByIdRequest,
 } from "../../application/use-cases/GetProductByIdUseCase";
 import { ProductType } from "../../domain/factories/ProductFactory";
-
 export class ProductController {
   constructor(
     private createProductUseCase: CreateProductUseCase,
     private getProductsUseCase: GetProductsUseCase,
     private getProductByIdUseCase: GetProductByIdUseCase
   ) {}
-
   async createProduct(req: Request, res: Response): Promise<void> {
     try {
       const {
@@ -32,8 +30,6 @@ export class ProductController {
         attributes,
         stock,
       } = req.body;
-
-      // Validação básica
       if (!name || !description || !price || !categoryId || !type) {
         res.status(400).json({
           success: false,
@@ -42,7 +38,6 @@ export class ProductController {
         });
         return;
       }
-
       const createRequest: CreateProductRequest = {
         name,
         description,
@@ -53,9 +48,7 @@ export class ProductController {
         attributes,
         stock: stock ? parseInt(stock) : undefined,
       };
-
       const result = await this.createProductUseCase.execute(createRequest);
-
       if (result.success) {
         res.status(201).json({
           success: true,
@@ -78,7 +71,6 @@ export class ProductController {
       });
     }
   }
-
   async getProducts(req: Request, res: Response): Promise<void> {
     try {
       const {
@@ -92,7 +84,6 @@ export class ProductController {
         sortBy,
         sortOrder,
       } = req.query;
-
       const getRequest: GetProductsRequest = {
         limit: limit ? parseInt(limit as string) : undefined,
         offset: offset ? parseInt(offset as string) : undefined,
@@ -104,9 +95,7 @@ export class ProductController {
         sortBy: sortBy as any,
         sortOrder: sortOrder as any,
       };
-
       const result = await this.getProductsUseCase.execute(getRequest);
-
       if (result.success) {
         res.status(200).json({
           success: true,
@@ -133,11 +122,9 @@ export class ProductController {
       });
     }
   }
-
   async getProductById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-
       if (!id) {
         res.status(400).json({
           success: false,
@@ -145,10 +132,8 @@ export class ProductController {
         });
         return;
       }
-
       const getRequest: GetProductByIdRequest = { id };
       const result = await this.getProductByIdUseCase.execute(getRequest);
-
       if (result.success) {
         res.status(200).json({
           success: true,
@@ -171,7 +156,6 @@ export class ProductController {
       });
     }
   }
-
   async updateProduct(req: Request, res: Response): Promise<void> {
     try {
       res.status(501).json({
@@ -187,11 +171,9 @@ export class ProductController {
       });
     }
   }
-
   async searchProducts(req: Request, res: Response): Promise<void> {
     try {
       const { q, limit, offset } = req.query;
-
       if (!q) {
         res.status(400).json({
           success: false,
@@ -199,23 +181,18 @@ export class ProductController {
         });
         return;
       }
-
       const getRequest: GetProductsRequest = {
         limit: limit ? parseInt(limit as string) : 20,
         offset: offset ? parseInt(offset as string) : 0,
       };
-
       const result = await this.getProductsUseCase.execute(getRequest);
-
       if (result.success) {
-        // Filtrar produtos que contenham o termo de busca
         const searchTerm = (q as string).toLowerCase();
         const filteredProducts = result.products?.filter(
           (product) =>
             product.name.toLowerCase().includes(searchTerm) ||
             product.description.toLowerCase().includes(searchTerm)
         );
-
         res.status(200).json({
           success: true,
           data: {

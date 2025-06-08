@@ -1,5 +1,4 @@
 import { Order, OrderStatus, PaymentStatus } from "../entities/Order";
-
 export interface IOrderRepository {
   create(order: Order): Promise<Order>;
   findById(id: string): Promise<Order | null>;
@@ -29,7 +28,6 @@ export interface IOrderRepository {
     paymentStatus: PaymentStatus
   ): Promise<void>;
 }
-
 export interface OrderFilters {
   userId?: string;
   status?: OrderStatus;

@@ -16,7 +16,6 @@ import {
   UpdateOrderStatusRequest,
 } from "../../application/use-cases/UpdateOrderStatusUseCase";
 import { PaymentMethod, OrderStatus } from "../../domain/entities/Order";
-
 export class OrderController {
   constructor(
     private createOrderUseCase: CreateOrderUseCase,
@@ -24,13 +23,10 @@ export class OrderController {
     private getUserOrdersUseCase: GetUserOrdersUseCase,
     private updateOrderStatusUseCase: UpdateOrderStatusUseCase
   ) {}
-
   async createOrder(req: Request, res: Response): Promise<void> {
     try {
       const { userId, items, paymentMethod, paymentData, customerData } =
         req.body;
-
-      // Validação básica dos dados de entrada
       if (!userId || !items || !paymentMethod) {
         res.status(400).json({
           success: false,
@@ -38,8 +34,6 @@ export class OrderController {
         });
         return;
       }
-
-      // Validar método de pagamento
       if (!Object.values(PaymentMethod).includes(paymentMethod)) {
         res.status(400).json({
           success: false,
@@ -47,8 +41,6 @@ export class OrderController {
         });
         return;
       }
-
-      // Criar request para o use case
       const createOrderRequest: CreateOrderRequest = {
         userId,
         items,
@@ -56,10 +48,7 @@ export class OrderController {
         paymentData: paymentData || {},
         customerData: customerData || {},
       };
-
-      // Executar use case
       const result = await this.createOrderUseCase.execute(createOrderRequest);
-
       if (result.success) {
         res.status(201).json({
           success: true,
@@ -85,11 +74,9 @@ export class OrderController {
       });
     }
   }
-
   async getOrderById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-
       if (!id) {
         res.status(400).json({
           success: false,
@@ -97,15 +84,11 @@ export class OrderController {
         });
         return;
       }
-
-      // Se usuário autenticado, verificar permissão
       const getRequest: GetOrderByIdRequest = {
         id,
-        userId: req.user?.userId, // Adiciona userId se autenticado
+        userId: req.user?.userId, 
       };
-
       const result = await this.getOrderByIdUseCase.execute(getRequest);
-
       if (result.success) {
         res.status(200).json({
           success: true,
@@ -133,12 +116,10 @@ export class OrderController {
       });
     }
   }
-
   async getUserOrders(req: Request, res: Response): Promise<void> {
     try {
       const { userId } = req.params;
       const { limit = 10, offset = 0 } = req.query;
-
       if (!userId) {
         res.status(400).json({
           success: false,
@@ -146,8 +127,6 @@ export class OrderController {
         });
         return;
       }
-
-      // Verificar se o usuário pode acessar esses pedidos
       if (req.user && req.user.role !== "ADMIN" && req.user.userId !== userId) {
         res.status(403).json({
           success: false,
@@ -155,17 +134,14 @@ export class OrderController {
         });
         return;
       }
-
       const getUserOrdersRequest: GetUserOrdersRequest = {
         userId,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string),
       };
-
       const result = await this.getUserOrdersUseCase.execute(
         getUserOrdersRequest
       );
-
       if (result.success) {
         res.status(200).json({
           success: true,
@@ -192,12 +168,10 @@ export class OrderController {
       });
     }
   }
-
   async updateOrderStatus(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const { status } = req.body;
-
       if (!id || !status) {
         res.status(400).json({
           success: false,
@@ -205,8 +179,6 @@ export class OrderController {
         });
         return;
       }
-
-      // Validar status
       if (!Object.values(OrderStatus).includes(status)) {
         res.status(400).json({
           success: false,
@@ -214,17 +186,12 @@ export class OrderController {
         });
         return;
       }
-
-      // Criar request para o use case
       const updateRequest: UpdateOrderStatusRequest = {
         orderId: id,
         status,
-        userId: req.user?.userId, // Para verificação de permissão
+        userId: req.user?.userId, 
       };
-
-      // Executar use case
       const result = await this.updateOrderStatusUseCase.execute(updateRequest);
-
       if (result.success) {
         res.status(200).json({
           success: true,
@@ -240,7 +207,6 @@ export class OrderController {
             : result.error === "Access denied"
             ? 403
             : 400;
-
         res.status(statusCode).json({
           success: false,
           error: result.error,

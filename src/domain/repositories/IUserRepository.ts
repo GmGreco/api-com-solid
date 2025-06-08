@@ -1,6 +1,4 @@
 import { User } from "../entities/User";
-
-// Interface do Repository seguindo Dependency Inversion Principle
 export interface IUserRepository {
   create(user: User): Promise<User>;
   findById(id: string): Promise<User | null>;
@@ -9,8 +7,6 @@ export interface IUserRepository {
   delete(id: string): Promise<void>;
   findAll(limit?: number, offset?: number): Promise<User[]>;
 }
-
-// Interface para filtros de busca
 export interface UserFilters {
   role?: string;
   email?: string;

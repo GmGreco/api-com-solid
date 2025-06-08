@@ -10,10 +10,8 @@ import {
   IOrderRepository,
   OrderFilters,
 } from "../../domain/repositories/IOrderRepository";
-
 export class PrismaOrderRepository implements IOrderRepository {
   constructor(private prisma: PrismaClient) {}
-
   async create(order: Order): Promise<Order> {
     const orderData = {
       id: order.id,
@@ -33,17 +31,14 @@ export class PrismaOrderRepository implements IOrderRepository {
         })),
       },
     };
-
     const created = await this.prisma.order.create({
       data: orderData,
       include: {
         orderItems: true,
       },
     });
-
     return this.toDomainEntity(created);
   }
-
   async findById(id: string): Promise<Order | null> {
     const order = await this.prisma.order.findUnique({
       where: { id },
@@ -51,17 +46,14 @@ export class PrismaOrderRepository implements IOrderRepository {
         orderItems: true,
       },
     });
-
     return order ? this.toDomainEntity(order) : null;
   }
-
   async update(order: Order): Promise<Order> {
     const orderData = {
       status: order.status,
       paymentStatus: order.paymentStatus,
       updatedAt: order.updatedAt,
     };
-
     const updated = await this.prisma.order.update({
       where: { id: order.id },
       data: orderData,
@@ -69,21 +61,16 @@ export class PrismaOrderRepository implements IOrderRepository {
         orderItems: true,
       },
     });
-
     return this.toDomainEntity(updated);
   }
-
   async delete(id: string): Promise<void> {
-    // Deletar itens primeiro (devido às foreign keys)
     await this.prisma.orderItem.deleteMany({
       where: { orderId: id },
     });
-
     await this.prisma.order.delete({
       where: { id },
     });
   }
-
   async findByUserId(userId: string, limit = 50, offset = 0): Promise<Order[]> {
     const orders = await this.prisma.order.findMany({
       where: { userId },
@@ -94,10 +81,8 @@ export class PrismaOrderRepository implements IOrderRepository {
       skip: offset,
       orderBy: { createdAt: "desc" },
     });
-
     return orders.map((order) => this.toDomainEntity(order));
   }
-
   async findByStatus(
     status: OrderStatus,
     limit = 50,
@@ -112,10 +97,8 @@ export class PrismaOrderRepository implements IOrderRepository {
       skip: offset,
       orderBy: { createdAt: "desc" },
     });
-
     return orders.map((order) => this.toDomainEntity(order));
   }
-
   async findByPaymentStatus(
     paymentStatus: PaymentStatus,
     limit = 50,
@@ -130,25 +113,19 @@ export class PrismaOrderRepository implements IOrderRepository {
       skip: offset,
       orderBy: { createdAt: "desc" },
     });
-
     return orders.map((order) => this.toDomainEntity(order));
   }
-
   async findAll(filters?: OrderFilters): Promise<Order[]> {
     const where: any = {};
-
     if (filters?.userId) {
       where.userId = filters.userId;
     }
-
     if (filters?.status) {
       where.status = filters.status;
     }
-
     if (filters?.paymentStatus) {
       where.paymentStatus = filters.paymentStatus;
     }
-
     if (filters?.startDate || filters?.endDate) {
       where.createdAt = {};
       if (filters.startDate) {
@@ -158,7 +135,6 @@ export class PrismaOrderRepository implements IOrderRepository {
         where.createdAt.lte = filters.endDate;
       }
     }
-
     if (filters?.minTotal || filters?.maxTotal) {
       where.total = {};
       if (filters.minTotal) {
@@ -168,14 +144,12 @@ export class PrismaOrderRepository implements IOrderRepository {
         where.total.lte = filters.maxTotal;
       }
     }
-
     const orderBy: any = {};
     if (filters?.sortBy) {
       orderBy[filters.sortBy] = filters.sortOrder || "desc";
     } else {
       orderBy.createdAt = "desc";
     }
-
     const orders = await this.prisma.order.findMany({
       where,
       include: {
@@ -185,14 +159,11 @@ export class PrismaOrderRepository implements IOrderRepository {
       take: filters?.limit || 50,
       skip: filters?.offset || 0,
     });
-
     return orders.map((order) => this.toDomainEntity(order));
   }
-
   async findPendingOrders(): Promise<Order[]> {
     return this.findByStatus(OrderStatus.PENDING);
   }
-
   async findOrdersToShip(): Promise<Order[]> {
     const orders = await this.prisma.order.findMany({
       where: {
@@ -204,10 +175,8 @@ export class PrismaOrderRepository implements IOrderRepository {
       },
       orderBy: { createdAt: "asc" },
     });
-
     return orders.map((order) => this.toDomainEntity(order));
   }
-
   async updateStatus(orderId: string, status: OrderStatus): Promise<void> {
     await this.prisma.order.update({
       where: { id: orderId },
@@ -217,7 +186,6 @@ export class PrismaOrderRepository implements IOrderRepository {
       },
     });
   }
-
   async updatePaymentStatus(
     orderId: string,
     paymentStatus: PaymentStatus
@@ -230,7 +198,6 @@ export class PrismaOrderRepository implements IOrderRepository {
       },
     });
   }
-
   private toDomainEntity(order: any): Order {
     const items: OrderItem[] = order.orderItems.map((item: any) => ({
       id: item.id,
@@ -238,7 +205,6 @@ export class PrismaOrderRepository implements IOrderRepository {
       quantity: item.quantity,
       price: item.price,
     }));
-
     return new Order(
       order.id,
       order.userId,

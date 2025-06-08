@@ -8,18 +8,14 @@ import {
   LoginRequest,
 } from "../../application/use-cases/LoginUseCase";
 import { UserRole } from "../../domain/entities/User";
-
 export class AuthController {
   constructor(
     private registerUserUseCase: RegisterUserUseCase,
     private loginUseCase: LoginUseCase
   ) {}
-
   async register(req: Request, res: Response): Promise<void> {
     try {
       const { name, email, password, role } = req.body;
-
-      // Validação básica
       if (!name || !email || !password) {
         res.status(400).json({
           success: false,
@@ -27,8 +23,6 @@ export class AuthController {
         });
         return;
       }
-
-      // Validar role se fornecido
       if (role && !Object.values(UserRole).includes(role)) {
         res.status(400).json({
           success: false,
@@ -36,16 +30,13 @@ export class AuthController {
         });
         return;
       }
-
       const registerRequest: RegisterUserRequest = {
         name,
         email,
         password,
         role,
       };
-
       const result = await this.registerUserUseCase.execute(registerRequest);
-
       if (result.success) {
         res.status(201).json({
           success: true,
@@ -68,12 +59,9 @@ export class AuthController {
       });
     }
   }
-
   async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-
-      // Validação básica
       if (!email || !password) {
         res.status(400).json({
           success: false,
@@ -81,14 +69,11 @@ export class AuthController {
         });
         return;
       }
-
       const loginRequest: LoginRequest = {
         email,
         password,
       };
-
       const result = await this.loginUseCase.execute(loginRequest);
-
       if (result.success) {
         res.status(200).json({
           success: true,

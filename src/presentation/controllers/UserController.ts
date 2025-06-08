@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
-
 export class UserController {
   constructor(private userRepository: IUserRepository) {}
-
   async getProfile(req: Request, res: Response): Promise<void> {
     try {
       if (!req.user) {
@@ -13,9 +11,7 @@ export class UserController {
         });
         return;
       }
-
       const user = await this.userRepository.findById(req.user.userId);
-
       if (!user) {
         res.status(404).json({
           success: false,
@@ -23,7 +19,6 @@ export class UserController {
         });
         return;
       }
-
       res.status(200).json({
         success: true,
         data: {
@@ -45,7 +40,6 @@ export class UserController {
       });
     }
   }
-
   async updateProfile(req: Request, res: Response): Promise<void> {
     try {
       if (!req.user) {
@@ -55,9 +49,7 @@ export class UserController {
         });
         return;
       }
-
       const { name, email } = req.body;
-
       if (!name && !email) {
         res.status(400).json({
           success: false,
@@ -65,9 +57,7 @@ export class UserController {
         });
         return;
       }
-
       const user = await this.userRepository.findById(req.user.userId);
-
       if (!user) {
         res.status(404).json({
           success: false,
@@ -75,8 +65,6 @@ export class UserController {
         });
         return;
       }
-
-      // Verificar se email já existe (se fornecido)
       if (email && email !== user.email) {
         const existingUser = await this.userRepository.findByEmail(email);
         if (existingUser) {
@@ -87,17 +75,13 @@ export class UserController {
           return;
         }
       }
-
-      // Atualizar campos
       if (name) {
         user.updateName(name);
       }
       if (email) {
         user.updateEmail(email);
       }
-
       const updatedUser = await this.userRepository.update(user);
-
       res.status(200).json({
         success: true,
         data: {
@@ -120,16 +104,13 @@ export class UserController {
       });
     }
   }
-
   async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
       const { limit, offset } = req.query;
-
       const users = await this.userRepository.findAll(
         limit ? parseInt(limit as string) : 50,
         offset ? parseInt(offset as string) : 0
       );
-
       res.status(200).json({
         success: true,
         data: {
